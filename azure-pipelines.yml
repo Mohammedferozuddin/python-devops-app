@@ -5,29 +5,19 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-
-- task: UsePythonVersion@0
+- task: Docker@2
   inputs:
-    versionSpec: '3.x'
+    containerRegistry: 'dockerhub-connection'
+    repository: 'ferozuddin/devops-app'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: "Install Dependencies"
-
-- script: |
-    python -m py_compile app.py
-  displayName: "Check App Syntax"
-
-- task: ArchiveFiles@2
+- task: SSH@0
   inputs:
-    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
-    replaceExistingArchive: true
-
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
+    sshEndpoint: 'aws-ec2-ssh'
+    runOptions: 'commands'
+    commands: |
+      docker pull yourdockerhubusername/devops-app
+      docker stop devops-app || true
+      docker rm devops-app || true
+      docker run -d -p 5000:5000 --name devops-app yourdockerhubusername/devops-app
