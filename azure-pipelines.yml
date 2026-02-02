@@ -1,11 +1,3 @@
-trigger:
-- main
-
-pool:
-  vmImage: 'ubuntu-latest'
-
-steps:
-
 - task: Docker@2
   displayName: Build and Push Docker Image
   inputs:
@@ -14,15 +6,5 @@ steps:
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
     tags: |
+      $(Build.BuildId)
       latest
-
-- task: SSH@0
-  displayName: Deploy Container on AWS EC2
-  inputs:
-    sshEndpoint: 'python-web-app'
-    runOptions: 'commands'
-    commands: |
-      docker pull ferozuddin/devops-app:latest
-      docker rm -f devops-app 2>/dev/null || true
-      docker run -d -p 5000:5000 --name devops-app --restart always ferozuddin/devops-app:latest
-
