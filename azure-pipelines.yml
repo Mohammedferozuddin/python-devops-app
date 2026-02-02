@@ -19,7 +19,7 @@ steps:
 - task: SSH@0
   displayName: Deploy Container on AWS EC2
   inputs:
-    sshEndpoint: 'aws-ec2-ssh'
+    sshEndpoint: 'python-web-app'
     runOptions: 'commands'
     commands: |
       docker pull ferozuddin/devops-app:latest
