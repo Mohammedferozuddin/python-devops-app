@@ -13,7 +13,7 @@ stages:
       displayName: Build and Push Docker Image
       inputs:
         containerRegistry: 'dockerhub-connection'
-        repository: 'ferozuddin/python-devops-app'
+        repository: 'ferozuddin/devops-app'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
         tags: |
@@ -24,6 +24,6 @@ stages:
         sshEndpoint: 'web-app'
         runOptions: 'commands'
         commands: |
-          docker pull ferozuddin/python-devops-app:latest
-          docker rm -f python-devops-app 2>/dev/null || true
-          docker run -d -p 5000:5000 --name devops-app --restart always ferozuddin/python-devops-app:latest
+          docker pull ferozuddin/devops-app:latest
+          docker rm -f devops-app 2>/dev/null || true
+          docker run -d -p 5000:5000 --name devops-app --restart always ferozuddin/devops-app:latest
