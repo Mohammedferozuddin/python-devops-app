@@ -1,18 +1,29 @@
 trigger:
-- main
-
-pool:
-  vmImage: 'ubuntu-latest'
-
-steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '3.x'
-
-- script: |
-    pip install -r requirements.txt
-  displayName: 'Install dependencies'
-
-- script: |
-    echo "Build step running"
-  displayName: 'Build step'
+  branches:
+    include:
+    - main
+stages:
+- stage: __default
+  jobs:
+  - job: Job
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      displayName: Build and Push Docker Image
+      inputs:
+        containerRegistry: 'dockerhub-connection'
+        repository: 'ferozuddin/python-devops-app'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: |
+          latest
+    - task: SSH@0
+      displayName: Deploy Container on AWS EC2
+      inputs:
+        sshEndpoint: 'web-app'
+        runOptions: 'commands'
+        commands: |
+          docker pull ferozuddin/python-devops-app:latest
+          docker rm -f python-devops-app 2>/dev/null || true
+          docker run -d -p 5000:5000 --name devops-app --restart always ferozuddin/python-devops-app:latest
